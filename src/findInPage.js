@@ -41,8 +41,8 @@ const initialized = Symbol('initialized')
 const config = Symbol('config')
 
 class FindInPage extends Find{
-  constructor (webContents, options = {}) {
-    super(webContents)
+  constructor (ipcRenderer, options = {}) {
+    super(ipcRenderer)
     this[findBox] = null
     this[findInput] = null
     this[findMatches] = null
