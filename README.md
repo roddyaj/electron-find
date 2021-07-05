@@ -3,7 +3,7 @@
 English | [简体中文](./README.zh-CN.md)
 
 ## Introduction
-Find all matches for the text in electron app
+Find all matches for the text in electron app. This fork includes support for more recent electron versions, and other enhancements.
 
 ## Features
 - depend on the API of electron's findInPage
@@ -16,6 +16,7 @@ Find all matches for the text in electron app
 
 ## Changes From Original Repository
 - Support recent electron versions by using ipcRenderer instead of webContents
+- Fix: Prevent find from starting over when pressing enter in the text box
 
 ## Demo
 
@@ -36,41 +37,41 @@ $   npm install roddyaj/electron-find --save
 Call a function like this to add find support to a window:
 ```
 function addFindSupport(window) {
-	window.on("focus", () => {
-		globalShortcut.register("CommandOrControl+F", () => {
-			window.webContents.send("openFind");
-		})
-	})
-	window.on("blur", () => {
-		globalShortcut.unregister("CommandOrControl+F");
-	});
+  window.on("focus", () => {
+    globalShortcut.register("CommandOrControl+F", () => {
+      window.webContents.send("openFind");
+    })
+  })
+  window.on("blur", () => {
+    globalShortcut.unregister("CommandOrControl+F");
+  });
 
-	window.findListener = (event, text, options) => { window.webContents.findInPage(text, options); };
-	window.stopFindListener = (event, action) => { window.webContents.stopFindInPage(action); };
-	ipcMain.on("find", window.findListener);
-	ipcMain.on("stopFind", window.stopFindListener);
-	window.webContents.on("found-in-page", (event, result) => { window.webContents.send("found-in-page", result); });
+  window.findListener = (event, text, options) => { window.webContents.findInPage(text, options); };
+  window.stopFindListener = (event, action) => { window.webContents.stopFindInPage(action); };
+  ipcMain.on("find", window.findListener);
+  ipcMain.on("stopFind", window.stopFindListener);
+  window.webContents.on("found-in-page", (event, result) => { window.webContents.send("found-in-page", result); });
 
-	window.on("closed", () => {
-		globalShortcut.unregister("CommandOrControl+F");
-		ipcMain.removeListener("find", window.findListener);
-		ipcMain.removeListener("stopFind", window.stopFindListener);
-	});
+  window.on("closed", () => {
+    globalShortcut.unregister("CommandOrControl+F");
+    ipcMain.removeListener("find", window.findListener);
+    ipcMain.removeListener("stopFind", window.stopFindListener);
+  });
 }
 ```
 
 ### In Preload Script
-See documentation on [preload scripts](https://www.electronjs.org/docs/tutorial/quick-start#access-nodejs-from-the-renderer-with-a-preload-script).
+Note, see documentation on [preload scripts](https://www.electronjs.org/docs/tutorial/quick-start#access-nodejs-from-the-renderer-with-a-preload-script) for more information.
 ```
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("ipcRenderer", {
-	send: (channel, ...args) => {
-		ipcRenderer.send(channel, ...args);
-	},
-	on: (channel, listener) => {
-		ipcRenderer.on(channel, listener);
-	},
+  send: (channel, ...args) => {
+    ipcRenderer.send(channel, ...args);
+  },
+  on: (channel, listener) => {
+    ipcRenderer.on(channel, listener);
+  },
 });
 ```
 
@@ -81,7 +82,7 @@ import { FindInPage } from "electron-find";
 const { ipcRenderer } = window;
 this.findInPage = new FindInPage(ipcRenderer);
 ipcRenderer.on("openFind", (_event, _message) => {
-	this.findInPage.openFindWindow();
+  this.findInPage.openFindWindow();
 });
 ```
 
