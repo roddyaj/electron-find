@@ -359,7 +359,7 @@ function focusInput (doBlur = false) {
 }
 
 function wrapInput (inputEle, caseEle, timeout = 50) {
-  inputEle.type = 'password'
+  inputEle.style['visibility'] = 'hidden'
   caseEle.style['visibility'] = 'hidden'
 
   setTimeout(() => {
@@ -370,7 +370,7 @@ function wrapInput (inputEle, caseEle, timeout = 50) {
   }, timeout)
 }
 function unwrapInput (inputEle, caseEle) {
-  inputEle.type = 'text'
+  inputEle.style['visibility'] = 'visible'
   caseEle.style['visibility'] = 'visible'
 }
 
