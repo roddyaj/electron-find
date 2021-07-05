@@ -11,8 +11,11 @@ Find all matches for the text in electron app
 - support case-sensitive
 - Auto find when user inputing is change
 - The find interface is separated from electron view
-- support electron version ^1.8.0, ^2.0.0, ^3.0.0, ^4.0.0
+- Verified to work in electron versions 12 and 13
 - support platform of Windows, Linux, Mac
+
+## Changes From Original Repository
+- Support recent electron versions by using ipcRenderer instead of webContents
 
 ## Demo
 
@@ -24,10 +27,65 @@ Find all matches for the text in electron app
 
 ## Install
 ``` 
-$   npm install electron-find --save
+$   npm install roddyaj/electron-find --save
 ```
 
 ## Usage
+
+### In Main Process
+Call a function like this to add find support to a window:
+```
+function addFindSupport(window) {
+	window.on("focus", () => {
+		globalShortcut.register("CommandOrControl+F", () => {
+			window.webContents.send("openFind");
+		})
+	})
+	window.on("blur", () => {
+		globalShortcut.unregister("CommandOrControl+F");
+	});
+
+	window.findListener = (event, text, options) => { window.webContents.findInPage(text, options); };
+	window.stopFindListener = (event, action) => { window.webContents.stopFindInPage(action); };
+	ipcMain.on("find", window.findListener);
+	ipcMain.on("stopFind", window.stopFindListener);
+	window.webContents.on("found-in-page", (event, result) => { window.webContents.send("found-in-page", result); });
+
+	window.on("closed", () => {
+		globalShortcut.unregister("CommandOrControl+F");
+		ipcMain.removeListener("find", window.findListener);
+		ipcMain.removeListener("stopFind", window.stopFindListener);
+	});
+}
+```
+
+### In Preload Script
+See documentation on [preload scripts](https://www.electronjs.org/docs/tutorial/quick-start#access-nodejs-from-the-renderer-with-a-preload-script).
+```
+const { contextBridge, ipcRenderer } = require("electron");
+
+contextBridge.exposeInMainWorld("ipcRenderer", {
+	send: (channel, ...args) => {
+		ipcRenderer.send(channel, ...args);
+	},
+	on: (channel, listener) => {
+		ipcRenderer.on(channel, listener);
+	},
+});
+```
+
+### In Render Process
+```
+import { FindInPage } from "electron-find";
+
+const { ipcRenderer } = window;
+this.findInPage = new FindInPage(ipcRenderer);
+ipcRenderer.on("openFind", (_event, _message) => {
+	this.findInPage.openFindWindow();
+});
+```
+
+### Original Usage Examples
 ```
 # import module
 import { remote, ipcRenderer } from 'electron'

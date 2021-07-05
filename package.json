@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TheoXiong/electron-find.git"
+    "url": "git+https://github.com/roddyaj/electron-find.git"
   },
   "keywords": [
     "find",
@@ -20,9 +20,9 @@
   "author": "TheoXiong",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/TheoXiong/electron-find/issues"
+    "url": "https://github.com/roddyaj/electron-find/issues"
   },
-  "homepage": "https://github.com/TheoXiong/electron-find#readme",
+  "homepage": "https://github.com/roddyaj/electron-find#readme",
   "devDependencies": {
     "electron": "^2.0.0"
   }

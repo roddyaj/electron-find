@@ -49,7 +49,7 @@ class Find extends EventEmitter {
     this[preText] = text
     this[ipc].send('find', this[preText], {
       forward,
-      matchCase,
+      matchCase
     })
     this[requestId] = 1
     print(`[Find] startFind text=${text} forward=${forward} matchCase=${matchCase}`)
@@ -59,7 +59,7 @@ class Find extends EventEmitter {
     this[ipc].send('find', this[preText], {
       forward,
       matchCase,
-      findNext: true,
+      findNext: true
     })
     this[requestId] = 1
     print(`[Find] findNext text=${this[preText]} forward=${forward} matchCase=${matchCase}`)
