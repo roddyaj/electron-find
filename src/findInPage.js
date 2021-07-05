@@ -412,6 +412,7 @@ function onKeydown (e) {
 function findKeep (forward) {
   if (!this.isFinding()) return
   forward ? onForwardClick.call(this) : onBackClick.call(this)
+  focusInput.call(this, true)
 }
 
 function onCaseClick () {
