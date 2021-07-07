@@ -4,26 +4,23 @@ const path = require('path');
 let win;
 
 function addFindSupport(window) {
-	window.on("focus", () => {
-		globalShortcut.register("CommandOrControl+F", () => {
-			window.webContents.send("openFind");
-		})
-	})
-	window.on("blur", () => {
-		globalShortcut.unregister("CommandOrControl+F");
-	});
+  window.findListener = (event, text, options) => { window.webContents.findInPage(text, options); };
+  window.stopFindListener = (event, action) => { window.webContents.stopFindInPage(action); };
+  window.webContents.on("found-in-page", (event, result) => { window.webContents.send("found-in-page", result); });
 
-	window.findListener = (event, text, options) => { window.webContents.findInPage(text, options); };
-	window.stopFindListener = (event, action) => { window.webContents.stopFindInPage(action); };
-	ipcMain.on("find", window.findListener);
-	ipcMain.on("stopFind", window.stopFindListener);
-	window.webContents.on("found-in-page", (event, result) => { window.webContents.send("found-in-page", result); });
-
-	window.on("closed", () => {
-		globalShortcut.unregister("CommandOrControl+F");
-		ipcMain.removeListener("find", window.findListener);
-		ipcMain.removeListener("stopFind", window.stopFindListener);
-	});
+  const addListeners = () => {
+    globalShortcut.register("CommandOrControl+F", () => { window.webContents.send("openFind"); });
+    ipcMain.on("find", window.findListener);
+    ipcMain.on("stopFind", window.stopFindListener);
+  };
+  const removeListeners = () => {
+    globalShortcut.unregister("CommandOrControl+F");
+    ipcMain.removeListener("find", window.findListener);
+    ipcMain.removeListener("stopFind", window.stopFindListener);
+  };
+  window.on("focus", addListeners);
+  window.on("blur", removeListeners);
+  window.on("closed", removeListeners);
 }
 
 function createWindow() {
